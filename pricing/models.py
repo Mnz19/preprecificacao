@@ -10,9 +10,9 @@ class Ingrediente(models.Model):
         ('ml', 'mililitros'),
         ('l', 'litros'),
     )
-    nome = models.CharField(max_length=100)
+    nome = models.CharField('Nome', max_length=100)
     preco = models.DecimalField('Preço por peso', max_digits=10, decimal_places=2)
-    unidade_medida = models.CharField('Preço por unidade', max_length=2, choices=UNIDADES_CHOICES)
+    unidade_medida = models.CharField('Unidade de Medida', max_length=2, choices=UNIDADES_CHOICES)
 
     def __str__(self):
         return self.nome
@@ -26,11 +26,11 @@ class Ingrediente(models.Model):
         ordering = ['nome']
 
 class Receita(models.Model):
-    nome = models.CharField(max_length=100)
-    ingredientes = models.ManyToManyField(Ingrediente, through='QuantidadeIngrediente')
-    custo = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
-    valor_venda = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
-    margem_lucro = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    nome = models.CharField('Nome', max_length=100)
+    ingredientes = models.ManyToManyField(Ingrediente, through='QuantidadeIngrediente', verbose_name='Ingredientes')
+    custo = models.DecimalField('Custo', max_digits=10, decimal_places=2, default=0.00, editable=False)
+    valor_venda = models.DecimalField('Valor de Venda', max_digits=10, decimal_places=2, default=0.00, editable=False)
+    margem_lucro = models.DecimalField('Margem de Lucro (%)', max_digits=5, decimal_places=2, default=0.00)
 
     def __str__(self):
         return self.nome
@@ -64,7 +64,7 @@ class Receita(models.Model):
 class QuantidadeIngrediente(models.Model):
     receita = models.ForeignKey(Receita, on_delete=models.CASCADE)
     ingrediente = models.ForeignKey(Ingrediente, on_delete=models.CASCADE)
-    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
+    quantidade = models.DecimalField('Quantidade', max_digits=10, decimal_places=2)
     
     def __str__(self):
         return f'{self.ingrediente} - {self.quantidade} na receita {self.receita}'
@@ -86,8 +86,8 @@ def update_receita_cost(sender, instance, **kwargs):
     receita.save()
 
 class CustoIndireto(models.Model):
-    nome = models.CharField(max_length=100)
-    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    nome = models.CharField('Nome', max_length=100)
+    valor = models.DecimalField('Valor', max_digits=10, decimal_places=2)
     
     def __str__(self):
         return self.nome 
@@ -98,8 +98,8 @@ class CustoIndireto(models.Model):
         ordering = ['nome']
 
 class Funcionario(models.Model):
-    nome = models.CharField(max_length=100)
-    salario = models.DecimalField(max_digits=10, decimal_places=2)
+    nome = models.CharField('Nome', max_length=100)
+    salario = models.DecimalField('Salário', max_digits=10, decimal_places=2)
     
     def __str__(self):
         return self.nome
@@ -110,12 +110,12 @@ class Funcionario(models.Model):
         ordering = ['nome']
 
 class Lojas(models.Model):
-    endereco = models.CharField(max_length=150)
-    aluguel = models.DecimalField(max_digits=10, decimal_places=2)
-    agua = models.DecimalField(max_digits=10, decimal_places=2)
-    luz = models.DecimalField(max_digits=10, decimal_places=2)
-    funcionario = models.ManyToManyField(Funcionario)
-    custo = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
+    endereco = models.CharField('Endereço', max_length=150)
+    aluguel = models.DecimalField('Aluguel', max_digits=10, decimal_places=2)
+    agua = models.DecimalField('Água', max_digits=10, decimal_places=2)
+    luz = models.DecimalField('Luz', max_digits=10, decimal_places=2)
+    funcionario = models.ManyToManyField(Funcionario, verbose_name='Funcionários')
+    custo = models.DecimalField('Custo', max_digits=10, decimal_places=2, default=0.00, editable=False)
     numero_por_dia = models.IntegerField('Pratos vendidos por dia', default=1)
 
     @property
