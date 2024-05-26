@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1>Lista de Ingredientes</h1>
+  <ul>
+    {% for ingrediente in ingredientes %}
+      <li>
+        <a href="{% url 'ingredient-detail' ingrediente.pk %}">{{ ingrediente.nome }}</a>
+        <span>{{ ingrediente.preco }}</span>
+      </li>
+    {% empty %}
+      <p>Nenhum ingrediente cadastrado.</p>
+    {% endfor %}
+  </ul>
+{% endblock %}
