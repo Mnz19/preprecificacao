@@ -5,4 +5,41 @@
 {% endblock headtitle %}
 
 {% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h2>Bem-vindo ao Sistema de Precificação</h2>
+            <p class="lead">Gerencie suas receitas, lojas e ingredientes de forma eficiente.</p>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body text-dark">
+                    <h5 class="card-title">Receitas</h5>
+                    <p class="card-text">Gerencie suas receitas.</p>
+                    <a href="{% url 'receita-list' %}" class="btn btn-primary">Ir para Receitas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body text-dark">
+                    <h5 class="card-title">Lojas</h5>
+                    <p class="card-text">Gerencie suas lojas.</p>
+                    <a href="{% url 'loja-list' %}" class="btn btn-primary">Ir para Lojas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body text-dark">
+                    <h5 class="card-title">Ingredientes</h5>
+                    <p class="card-text">Gerencie seus ingredientes.</p>
+                    <a href="{% url 'ingredient-list' %}" class="btn btn-primary">Ir para Ingredientes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
