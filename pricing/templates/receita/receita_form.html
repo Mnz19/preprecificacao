@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Adicionar Receita</h2>
+    <form id="recipe-form" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <div id="ingredient-fields" class="mb-4">
+            <div class="ingredient-field">
+                <div class="form-group">
+                    <label for="id_ingredientes">Ingrediente:</label>
+                    <select class="form-control" name="ingredientes">
+                        <option value="">Selecione um ingrediente</option>
+                        {% for ingrediente in ingredientes %}
+                            <option value="{{ ingrediente.pk }}">{{ ingrediente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_quantidade">Quantidade:</label>
+                    <input type="number" class="form-control" name="quantidades" placeholder="Quantidade">
+                </div>
+                <button type="button" class="btn btn-danger remove-ingredient ">Remover Ingrediente</button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="add-ingredient">Adicionar Ingrediente</button>
+        <button type="submit" class="btn btn-primary">Salvar Receita</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('add-ingredient').addEventListener('click', function() {
+            var ingredientFields = document.getElementById('ingredient-fields');
+            var newIngredientField = document.createElement('div');
+            newIngredientField.classList.add('ingredient-field');
+            newIngredientField.innerHTML = `
+                <div class="form-group">
+                    <label for="id_ingredientes">Ingrediente:</label>
+                    <select class="form-control" name="ingredientes">
+                        <option value="">Selecione um ingrediente</option>
+                        {% for ingrediente in ingredientes %}
+                            <option value="{{ ingrediente.pk }}">{{ ingrediente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_quantidade">Quantidade:</label>
+                    <input type="number" class="form-control" name="quantidades" placeholder="Quantidade">
+                </div>
+                <button type="button" class="btn btn-danger remove-ingredient">Remover Ingrediente</button>
+            `;
+            ingredientFields.appendChild(newIngredientField);
+        });
+
+        document.getElementById('ingredient-fields').addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-ingredient')) {
+                event.target.parentElement.remove();
+            }
+        });
+    });
+</script>
+{% endblock %}

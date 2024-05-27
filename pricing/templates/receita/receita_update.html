@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block headtitle %}
+    <title>Editar Receita</title>
+{% endblock headtitle %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Editar Receita</h2>
+    <div class="card">
+        <div class="card-body text-dark">
+            <form id="recipe-form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <h5 class="card-title">Ingredientes</h5>
+                <div id="ingredient-fields" class="mb-4">
+                    {% for quantidade_ingrediente in receita.quantidadeingrediente_set.all %}
+                    <div class="ingredient-field">
+                        <div class="form-group">
+                            <label for="id_ingredientes">Ingrediente:</label>
+                            <select class="form-control" name="ingredientes[]">
+                                {% for ingrediente in ingredientes %}
+                                    <option value="{{ ingrediente.pk }}" {% if ingrediente.pk == quantidade_ingrediente.ingrediente.pk %}selected{% endif %}>{{ ingrediente.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_quantidade">Quantidade:</label>
+                            <input type="number" class="form-control" name="quantidades[]" id="quantidade{{ forloop.counter }}">
+                        </div>
+                        <button type="button" class="btn btn-danger remove-ingredient">Remover Ingrediente</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-primary" id="add-ingredient">Adicionar Ingrediente</button>
+                <button type="submit" class="btn btn-primary">Salvar Receita</button>
+            </form>
+        </div>
+        <a href="{% url 'receita-list' %}" class="btn btn-primary">Voltar</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        {% for quantidade_ingrediente in receita.quantidadeingrediente_set.all %}
+            document.getElementById('quantidade{{ forloop.counter }}').value = {{ quantidade_ingrediente.quantidade }};
+        {% endfor %}
+
+        document.getElementById('add-ingredient').addEventListener('click', function() {
+            var ingredientFields = document.getElementById('ingredient-fields');
+            var newIngredientField = document.createElement('div');
+            newIngredientField.classList.add('ingredient-field');
+            newIngredientField.innerHTML = `
+                <div class="form-group">
+                    <label for="id_ingredientes">Ingrediente:</label>
+                    <select class="form-control" name="ingredientes[]">
+                        <option value="">Selecione um ingrediente</option>
+                        {% for ingrediente in ingredientes %}
+                            <option value="{{ ingrediente.pk }}">{{ ingrediente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="id_quantidade">Quantidade:</label>
+                    <input type="number" class="form-control" name="quantidades[]" placeholder="Quantidade">
+                </div>
+                <button type="button" class="btn btn-danger remove-ingredient">Remover Ingrediente</button>
+            `;
+            ingredientFields.appendChild(newIngredientField);
+        });
+
+        document.getElementById('ingredient-fields').addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-ingredient')) {
+                event.target.closest('.ingredient-field').remove();
+            }
+        });
+    });
+</script>
+{% endblock content %}

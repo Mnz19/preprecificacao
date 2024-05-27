@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block headtitle %}
+    <title>Detalhe da loja</title>
+{% endblock headtitle %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Detalhes da Loja</h2>
+    <div class="card">
+        <div class="card-body text-dark">
+            <h5 class="card-title">Endereço: {{ loja.endereco }}</h5>
+            <p class="card-text">Aluguel: R$ {{ loja.aluguel }}</p>
+            <p class="card-text">Conta de água: R$ {{ loja.agua }}</p>
+            <p class="card-text">Conta de Energia: {{ loja.luz }}%</p>
+            <p class="card-text">Número de Funcionários: {{ loja.numero_funcionarios }}</p>
+            <p class="card-text">Custo Total: R$ {{ loja.custo }}</p>
+            <p class="card-text">Custo por Prato: R$ {{ loja.custo_por_prato }}</p>
+            <h5 class="card-title">Funcionários Associados</h5>
+            <ul class="list-group">
+                {% for funcionario in loja.funcionario_set.all %}
+                    <li class="list-group-item">{{ funcionario.nome }} - {{ funcionario.salario }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <a href="{% url 'receita-list' %}" class="btn btn-primary">Voltar</a>
+    </div>
+</div>
+{% endblock content %}

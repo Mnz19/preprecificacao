@@ -1,19 +1,25 @@
 from django.db import models
 from django.urls import reverse
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+
 
 class Ingrediente(models.Model):
     UNIDADES_CHOICES = (
-        ('g', 'gramas'),
-        ('kg', 'quilogramas'),
-        ('ml', 'mililitros'),
-        ('l', 'litros'),
+        ('g', 'gramas (G)'),
+        ('kg', 'quilogramas (Kg)'),
+        ('ml', 'mililitros (Ml)'),
+        ('l', 'litros (L)'),
+        ('un', 'unidades'),
     )
     nome = models.CharField('Nome', max_length=100)
     preco = models.DecimalField('Preço por peso', max_digits=10, decimal_places=2)
     unidade_medida = models.CharField('Unidade de Medida', max_length=2, choices=UNIDADES_CHOICES)
-
+    
+    def save(self, *args, **kwargs):
+        self.nome = self.nome.lower()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.nome
     
@@ -30,7 +36,7 @@ class Receita(models.Model):
     ingredientes = models.ManyToManyField(Ingrediente, through='QuantidadeIngrediente', verbose_name='Ingredientes')
     custo = models.DecimalField('Custo', max_digits=10, decimal_places=2, default=0.00, editable=False)
     valor_venda = models.DecimalField('Valor de Venda', max_digits=10, decimal_places=2, default=0.00, editable=False)
-    margem_lucro = models.DecimalField('Margem de Lucro (%)', max_digits=5, decimal_places=2, default=0.00)
+    margem_lucro = models.DecimalField('Margem de Lucro (%)', max_digits=5, decimal_places=2)
 
     def __str__(self):
         return self.nome
@@ -74,17 +80,6 @@ class QuantidadeIngrediente(models.Model):
         verbose_name_plural = 'Quantidades de Ingredientes'
         ordering = ['ingrediente']
 
-@receiver(m2m_changed, sender=Receita.ingredientes.through)
-@receiver(post_save, sender=QuantidadeIngrediente)
-def update_receita_cost(sender, instance, **kwargs):
-    if isinstance(instance, Receita):
-        receita = instance
-    else:
-        receita = instance.receita
-    receita.custo = receita.custo_ingredientes()
-    receita.valor_venda = receita.calcular_valor_venda()
-    receita.save()
-
 class CustoIndireto(models.Model):
     nome = models.CharField('Nome', max_length=100)
     valor = models.DecimalField('Valor', max_digits=10, decimal_places=2)
@@ -100,6 +95,12 @@ class CustoIndireto(models.Model):
 class Funcionario(models.Model):
     nome = models.CharField('Nome', max_length=100)
     salario = models.DecimalField('Salário', max_digits=10, decimal_places=2)
+    loja_associada = models.ForeignKey('Lojas', verbose_name='Lojas', blank=True, null=True, on_delete=models.SET_NULL, related_name='funcionario')
+    ativo = models.BooleanField('Ativo?', default=True)
+    
+    def save(self, *args, **kwargs):
+        self.nome = self.nome.lower()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.nome
@@ -114,17 +115,18 @@ class Lojas(models.Model):
     aluguel = models.DecimalField('Aluguel', max_digits=10, decimal_places=2)
     agua = models.DecimalField('Água', max_digits=10, decimal_places=2)
     luz = models.DecimalField('Luz', max_digits=10, decimal_places=2)
-    funcionario = models.ManyToManyField(Funcionario, verbose_name='Funcionários')
     custo = models.DecimalField('Custo', max_digits=10, decimal_places=2, default=0.00, editable=False)
     numero_por_dia = models.IntegerField('Pratos vendidos por dia', default=1)
 
     @property
     def numero_funcionarios(self):
-        return self.funcionario.count()
+        numero_funcionarios = Funcionario.objects.filter(loja_associada=self).count()
+        return numero_funcionarios
     
     def calcular_custo_total(self):
         total = self.aluguel + self.agua + self.luz
-        for funcionario in self.funcionario.all():
+        funcionarios = Funcionario.objects.filter(loja_associada=self, ativo=True)
+        for funcionario in funcionarios:
             total += funcionario.salario
         return total
 
@@ -135,6 +137,11 @@ class Lojas(models.Model):
             return (self.calcular_custo_total() + custo_indiretos) / self.numero_por_dia
         return 0
 
+    def save(self, *args, **kwargs):
+        self.endereco = self.endereco.lower()
+        self.custo = self.calcular_custo_total()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.endereco
 
@@ -142,16 +149,3 @@ class Lojas(models.Model):
         verbose_name = 'Loja'
         verbose_name_plural = 'Lojas'
         ordering = ['endereco']
-
-@receiver(m2m_changed, sender=Lojas.funcionario.through)
-def atualizando_custo_loja_m2m(sender, instance, **kwargs):
-    if kwargs.get('action') in ['post_add', 'post_remove', 'post_clear']:
-        instance.custo = instance.calcular_custo_total()
-        instance.save()
-
-@receiver(post_save, sender=Funcionario)
-def update_store_cost_post_save(sender, instance, **kwargs):
-    lojas = instance.lojas_set.all()
-    for loja in lojas:
-        loja.custo = loja.calcular_custo_total()
-        loja.save()

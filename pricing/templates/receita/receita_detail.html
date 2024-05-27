@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block headtitle %}
+    <title>Receita</title>
+{% endblock headtitle %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Detalhes da Receita</h2>
+    <div class="card">
+        <div class="card-body text-dark">
+            <h5 class="card-title">Nome: {{ receita.nome }}</h5>
+            <p class="card-text">Custo: R$ {{ receita.custo }}</p>
+            <p class="card-text">Valor de Venda: R$ {{ receita.valor_venda }}</p>
+            <p class="card-text">Margem de Lucro: {{ receita.margem_lucro }}%</p>
+            <h5 class="card-title">Ingredientes</h5>
+            <ul class="list-group">
+                {% for ingrediente in ingredientes %}
+                    <li class="list-group-item">{{ ingrediente.ingrediente }} - {{ ingrediente.quantidade }} {{ ingrediente.ingrediente.unidade_medida }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <a href="{% url 'receita-list' %}" class="btn btn-primary">Voltar</a>
+    </div>
+</div>
+{% endblock content %}
