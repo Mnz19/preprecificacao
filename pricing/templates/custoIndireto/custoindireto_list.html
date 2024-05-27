@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Lista de Custos Indiretos</h2>
+    <table class="table table-striped">
+      <thead>
+          <tr>
+              <th class="text-light" scope="col">Nome</th>
+              <th class="text-light" scope="col">Valor</th>
+              <th class="text-light" scope="col">Ações</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for custo in custos %}
+          <tr>
+              <td class="text-light">{{ custo.nome|capfirst }}</td>
+              <td class="text-light">R$ {{ custo.valor }}</td>
+              <td>
+                  <a href="{% url 'custo-update' pk=custo.pk %}">
+                      <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  <a href="#" data-toggle="modal" data-target="#confirm-delete-{{ custo.pk }}">
+                      <i class="fas fa-trash"></i>
+                  </a>
+              </td>
+          </tr>
+          {% empty %}
+          <tr>
+              <td class="text-light" colspan="3">Nenhum custo indireto encontrado.</td>
+          </tr>
+          {% endfor %}
+          <tr>
+              <td colspan="3">
+                  <a href="{% url 'custo-create' %}" class="btn btn-primary">
+                      <i class="fas fa-plus"></i> Adicionar Custo Indireto
+                  </a>
+              </td>
+          </tr>
+      </tbody>
+  </table>
+  <div class="row justify-content-center mt-4">
+      <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?page=1">Primeira</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+              {% endif %}
+              {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                      <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                      <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                  {% endif %}
+              {% endfor %}
+              {% if page_obj.has_next %}
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Proxima</a></li>
+                  <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a></li>
+              {% endif %}
+          </ul>
+      </nav>   
+  </div>
+</div>
+
+{% for custo in custos %}
+<div class="modal fade" id="confirm-delete-{{ custo.pk }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="exampleModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-dark">
+                Tem certeza de que deseja excluir o custo indireto "{{ custo.nome }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <form method="POST" action="{% url 'custo-delete' pk=custo.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

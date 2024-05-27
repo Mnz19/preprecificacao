@@ -141,3 +141,30 @@ class LojaForm(forms.ModelForm):
         
         return cleaned_data
         
+class CustoIndiretoForm(forms.ModelForm):
+    class Meta:
+        model = CustoIndireto
+        fields = ['nome', 'valor']
+        labels = {
+            'nome': 'Nome',
+            'valor': 'Valor',
+        }
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        valor = cleaned_data.get('valor')
+        nome = cleaned_data.get('nome')
+        nome = nome.lower()
+        
+        if valor and valor <= 0:
+            self.add_error('valor', 'O valor deve ser maior que zero.')
+            
+        if nome and not CustoIndireto.objects.filter(nome=nome).exists():
+            if nome and CustoIndireto.objects.filter(nome=nome).exists():
+                self.add_error('nome', 'Custo indireto já cadastrado.')
+        
+        return cleaned_data

@@ -30,3 +30,14 @@ def update_recipes_on_store_change(sender, instance, **kwargs):
         receita.custo = receita.custo_ingredientes()
         receita.valor_venda = receita.calcular_valor_venda()
         receita.save()
+
+@receiver(post_save, sender=CustoIndireto)
+@receiver(post_delete, sender=CustoIndireto)
+def update_recipes_on_indirect_cost_change(sender, instance, **kwargs):
+    for receita in Receita.objects.all():
+        receita.custo = receita.custo_ingredientes()
+        receita.valor_venda = receita.calcular_valor_venda()
+        receita.save()
+    for loja in Lojas.objects.all():
+        loja.custo = loja.calcular_custo_total()
+        loja.save()

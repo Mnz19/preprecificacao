@@ -107,13 +107,25 @@ class ReceitaDeleteView(DeleteView):
 
 class CustoIndiretoListView(ListView):
     model = CustoIndireto
-    template_name = 'custoindireto_list.html'
-    context_object_name = 'custos_indiretos'
-
-class CustoIndiretoDetailView(DetailView):
+    template_name = 'custoIndireto/custoindireto_list.html'
+    context_object_name = 'custos'
+    
+class CustoIndiretoCreateView(CreateView):
     model = CustoIndireto
-    template_name = 'custoindireto_detail.html'
-    context_object_name = 'custo_indireto'
+    template_name = 'custoIndireto/custoindireto_form.html'
+    form_class = CustoIndiretoForm
+    success_url = reverse_lazy('custo-list')
+
+class CustoIndiretoUpdateView(UpdateView):
+    model = CustoIndireto
+    template_name = 'custoIndireto/custoindireto_form.html'
+    form_class = CustoIndiretoForm
+    success_url = '/custos-indiretos/'
+
+class CustoIndiretoDeleteView(DeleteView):
+    model = CustoIndireto
+    template_name = 'custoIndireto/custoindireto_confirm_delete.html'
+    success_url = '/custos-indiretos/'
 
 class FuncionarioListView(ListView):
     model = Funcionario
@@ -151,6 +163,11 @@ class LojasDetailView(DetailView):
     model = Lojas
     template_name = 'loja/loja_detail.html'
     context_object_name = 'loja'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['funcionarios'] = Funcionario.objects.filter(loja_associada=self.object)
+        return context
     
 class LojasCreateView(CreateView):
     model = Lojas
