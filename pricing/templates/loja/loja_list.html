@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load l10n %}
 {% block content %}
 <div class="container">
     <h2 class="text-center mb-4">Lista de Lojas</h2>
@@ -21,7 +21,7 @@
                 <td class="text-light">R$ {{ loja.aluguel }}</td>
                 <td class="text-light">{{ loja.numero_funcionarios }}</td>
                 <td class="text-light">R$ {{ loja.custo }}</td>
-                <td class="text-light">R$ {{ loja.custo_por_prato }}</td>
+                <td class="text-light">R$ {{ loja.custo_por_prato | floatformat:2 }}</td>
                 <td>
                     <a href="{% url 'loja-detail' pk=loja.pk %}">
                         <i class="fas fa-eye"></i>

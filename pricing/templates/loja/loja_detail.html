@@ -13,7 +13,7 @@
             <p class="card-text">Conta de água: R$ {{ loja.agua }}</p>
             <p class="card-text">Conta de Energia: {{ loja.luz }}%</p>
             <p class="card-text">Custo Total: R$ {{ loja.custo }}</p>
-            <p class="card-text">Custo por Prato: R$ {{ loja.custo_por_prato }}</p>
+            <p class="card-text">Custo por Prato: R$ {{ loja.custo_por_prato|floatformat:2 }}</p>
             <p class="card-text">Número de Funcionários: {{ loja.numero_funcionarios }}</p>
             <h5 class="card-title">Funcionários Associados</h5>
             <ul class="list-group">

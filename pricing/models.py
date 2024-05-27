@@ -59,7 +59,7 @@ class Receita(models.Model):
         return custo_lojas
     
     def calcular_valor_venda(self):
-        custo_total = self.custo_ingredientes() + self.custo_lojas
+        custo_total = self.custo + self.custo_lojas
         return custo_total * (1 + self.margem_lucro / 100)
     
     class Meta:
@@ -115,7 +115,6 @@ class Lojas(models.Model):
     aluguel = models.DecimalField('Aluguel', max_digits=10, decimal_places=2)
     agua = models.DecimalField('Água', max_digits=10, decimal_places=2)
     luz = models.DecimalField('Luz', max_digits=10, decimal_places=2)
-    custo = models.DecimalField('Custo', max_digits=10, decimal_places=2, default=0.00, editable=False)
     numero_por_dia = models.IntegerField('Pratos vendidos por dia', default=1)
 
     @property
@@ -123,7 +122,8 @@ class Lojas(models.Model):
         numero_funcionarios = Funcionario.objects.filter(loja_associada=self).count()
         return numero_funcionarios
     
-    def calcular_custo_total(self):
+    @property
+    def custo(self):
         total = self.aluguel + self.agua + self.luz
         funcionarios = Funcionario.objects.filter(loja_associada=self, ativo=True)
         for funcionario in funcionarios:
@@ -134,12 +134,11 @@ class Lojas(models.Model):
     def custo_por_prato(self):
         custo_indiretos = sum(c.valor for c in CustoIndireto.objects.all())
         if self.numero_por_dia > 0:
-            return (self.calcular_custo_total() + custo_indiretos) / self.numero_por_dia
+            return (self.custo + custo_indiretos) / self.numero_por_dia
         return 0
 
     def save(self, *args, **kwargs):
         self.endereco = self.endereco.lower()
-        self.custo = self.calcular_custo_total()
         super().save(*args, **kwargs)
     
     def __str__(self):

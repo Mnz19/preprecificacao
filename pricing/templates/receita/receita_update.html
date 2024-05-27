@@ -25,7 +25,7 @@
                         </div>
                         <div class="form-group">
                             <label for="id_quantidade">Quantidade:</label>
-                            <input type="number" class="form-control" name="quantidades[]" id="quantidade{{ forloop.counter }}">
+                            <input type="number" class="form-control" name="quantidades[]" value="{{ quantidade_ingrediente.quantidade }}" step="0.01">
                         </div>
                         <button type="button" class="btn btn-danger remove-ingredient">Remover Ingrediente</button>
                     </div>
@@ -41,11 +41,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-        {% for quantidade_ingrediente in receita.quantidadeingrediente_set.all %}
-            document.getElementById('quantidade{{ forloop.counter }}').value = {{ quantidade_ingrediente.quantidade }};
-        {% endfor %}
-
         document.getElementById('add-ingredient').addEventListener('click', function() {
             var ingredientFields = document.getElementById('ingredient-fields');
             var newIngredientField = document.createElement('div');
@@ -68,7 +63,6 @@
             `;
             ingredientFields.appendChild(newIngredientField);
         });
-
         document.getElementById('ingredient-fields').addEventListener('click', function(event) {
             if (event.target.classList.contains('remove-ingredient')) {
                 event.target.closest('.ingredient-field').remove();
